@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Children, useEffect, useState } from "react";
 import "./App.css";
 import "./ClockBlock.css";
 import "./ZoneAdder.css";
@@ -6,8 +6,9 @@ import "normalize.css";
 import Clock from "react-clock";
 import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
-import Downshift, { useSelect } from "downshift";
+import Downshift from "downshift";
 import { zones as zoneList } from "tzdata";
+import Modal from "react-modal";
 
 function App() {
 	const [currentZones, setCurrentZones] = useState([DateTime.now()]);
@@ -38,7 +39,9 @@ function App() {
 				<h1>Times Owner</h1>
 			</header>
 			<main>
-				<ZoneAdder addToZones={addNewZone} />
+				<AddZoneModal>
+					<ZoneAdder addToZones={addNewZone} />
+				</AddZoneModal>
 				<section className="bar">
 					{sortedZones.map((dateTime, index) => (
 						<ClockBlock
@@ -64,7 +67,7 @@ function ClockBlock({ value, location }) {
 	);
 }
 
-function ZoneAdder({ addToZones }) {
+function ZoneAdder({ addToZones, handleChange }) {
 	const [input, setInput] = useState("");
 
 	const luxonValidTimezones = Object.entries(zoneList)
@@ -77,6 +80,7 @@ function ZoneAdder({ addToZones }) {
 			onChange={(selection) => {
 				addToZones(selection);
 				setInput("");
+				handleChange();
 			}}
 			itemToString={(item) => (item ? item : "")}
 			inputValue={input}
@@ -133,44 +137,16 @@ function ZoneAdder({ addToZones }) {
 	);
 }
 
-// function DropdownSelect() {
-// 	const items = Object.entries(zoneList)
-// 		.filter(([zoneName, v]) => Array.isArray(v))
-// 		.map(([zoneName, v]) => zoneName)
-// 		.filter((tz) => DateTime.local().setZone(tz).isValid);
-// 	// const items = zoneList;
-// 	const {
-// 		isOpen,
-// 		selectedItem,
-// 		getToggleButtonProps,
-// 		getLabelProps,
-// 		getMenuProps,
-// 		highlightedIndex,
-// 		getItemProps,
-// 	} = useSelect({ items });
+function AddZoneModal(props) {
+	const [show, toggle] = useState(false);
 
-// 	return (
-// 		<div>
-// 			<label {...getLabelProps()}>Choose an element:</label>
-// 			<button type="button" {...getToggleButtonProps()}>
-// 				{selectedItem || "Elements"}
-// 			</button>
-// 			<ul {...getMenuProps()} style={{}}>
-// 				{isOpen &&
-// 					items.map((item, index) => (
-// 						<li
-// 							style={
-// 								highlightedIndex === index ? { backgroundColor: "#bde4ff" } : {}
-// 							}
-// 							key={`${item}${index}`}
-// 							{...getItemProps({ item, index })}
-// 						>
-// 							{item}
-// 						</li>
-// 					))}
-// 			</ul>
-// 			{/* if you Tab from menu, focus goes on button, and it shouldn't. only happens here. */}
-// 			<div tabIndex="0" />
-// 		</div>
-// 	);
-// }
+	return (
+		<>
+			<button onClick={() => toggle(!show)}>click</button>
+			<Modal isOpen={show} contentLabel="Add a new Time Zone">
+				<button onClick={() => toggle(!show)}>Close Modal</button>
+				{props.children}
+			</Modal>
+		</>
+	);
+}
