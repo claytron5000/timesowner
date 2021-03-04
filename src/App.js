@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import "./ClockBlock.css";
+import "./ZoneAdder.css";
+import "normalize.css";
 import Clock from "react-clock";
 import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
-import Downshift from "downshift";
+import Downshift, { useSelect } from "downshift";
 import { zones as zoneList } from "tzdata";
 
 function App() {
@@ -56,13 +58,15 @@ export default App;
 function ClockBlock({ value, location }) {
 	return (
 		<div className="ClockBlock">
-			<Clock value={value.toFormat("HH:mm:ss")} />
+			<Clock value={value.toFormat("HH:mm:ss")} renderNumbers={true} />
 			<p>{location}</p>
 		</div>
 	);
 }
 
 function ZoneAdder({ addToZones }) {
+	const [input, setInput] = useState("");
+
 	const luxonValidTimezones = Object.entries(zoneList)
 		.filter(([zoneName, v]) => Array.isArray(v))
 		.map(([zoneName, v]) => zoneName)
@@ -70,8 +74,12 @@ function ZoneAdder({ addToZones }) {
 
 	return (
 		<Downshift
-			onChange={(selection) => addToZones(selection)}
+			onChange={(selection) => {
+				addToZones(selection);
+				setInput("");
+			}}
 			itemToString={(item) => (item ? item : "")}
+			inputValue={input}
 		>
 			{({
 				getInputProps,
@@ -84,13 +92,16 @@ function ZoneAdder({ addToZones }) {
 				selectedItem,
 				getRootProps,
 			}) => (
-				<div>
+				<div className={"ZoneAdder"}>
 					<label {...getLabelProps()}>Add a TimeZone</label>
 					<div
 						style={{ display: "inline-block" }}
 						{...getRootProps({}, { suppressRefError: true })}
 					>
-						<input {...getInputProps()} />
+						<input
+							{...getInputProps()}
+							onInput={(e) => setInput(e.target.value)}
+						/>
 					</div>
 					<ul {...getMenuProps()}>
 						{isOpen
@@ -104,7 +115,9 @@ function ZoneAdder({ addToZones }) {
 												item: zone,
 												style: {
 													backgroundColor:
-														highlightedIndex === index ? "lightgray" : "white",
+														highlightedIndex === index
+															? "lightgray"
+															: "transparent",
 													fontWeight: selectedItem === zone ? "bold" : "normal",
 												},
 											})}
@@ -119,3 +132,45 @@ function ZoneAdder({ addToZones }) {
 		</Downshift>
 	);
 }
+
+// function DropdownSelect() {
+// 	const items = Object.entries(zoneList)
+// 		.filter(([zoneName, v]) => Array.isArray(v))
+// 		.map(([zoneName, v]) => zoneName)
+// 		.filter((tz) => DateTime.local().setZone(tz).isValid);
+// 	// const items = zoneList;
+// 	const {
+// 		isOpen,
+// 		selectedItem,
+// 		getToggleButtonProps,
+// 		getLabelProps,
+// 		getMenuProps,
+// 		highlightedIndex,
+// 		getItemProps,
+// 	} = useSelect({ items });
+
+// 	return (
+// 		<div>
+// 			<label {...getLabelProps()}>Choose an element:</label>
+// 			<button type="button" {...getToggleButtonProps()}>
+// 				{selectedItem || "Elements"}
+// 			</button>
+// 			<ul {...getMenuProps()} style={{}}>
+// 				{isOpen &&
+// 					items.map((item, index) => (
+// 						<li
+// 							style={
+// 								highlightedIndex === index ? { backgroundColor: "#bde4ff" } : {}
+// 							}
+// 							key={`${item}${index}`}
+// 							{...getItemProps({ item, index })}
+// 						>
+// 							{item}
+// 						</li>
+// 					))}
+// 			</ul>
+// 			{/* if you Tab from menu, focus goes on button, and it shouldn't. only happens here. */}
+// 			<div tabIndex="0" />
+// 		</div>
+// 	);
+// }

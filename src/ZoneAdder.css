@@ -1,0 +1,19 @@
+.ZoneAdder {
+	position: relative;
+}
+.ZoneAdder ul {
+	background-color: bisque;
+	max-width: 200px;
+	position: absolute;
+	z-index: 1;
+}
+.ZoneAdder li {
+	list-style: none;
+	cursor: pointer;
+}
+
+.ZoneAdder {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+}
