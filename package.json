@@ -10,6 +10,10 @@
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.1",
+    "@types/jest": "^26.0.20",
+    "@types/node": "^14.14.31",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.1",
     "bulma": "^0.9.2",
     "downshift": "^6.1.0",
     "luxon": "^1.26.0",
@@ -19,6 +23,7 @@
     "react-dom": "^17.0.1",
     "react-modal": "^3.12.1",
     "react-scripts": "4.0.3",
+    "typescript": "^4.2.3",
     "tzdata": "^1.0.25",
     "web-vitals": "^1.1.0"
   },
@@ -47,6 +52,9 @@
     ]
   },
   "devDependencies": {
+    "@types/luxon": "^1.26.1",
+    "@types/react-clock": "^3.0.0",
+    "@types/react-modal": "^3.12.0",
     "node-sass": "^5.0.0"
   }
 }
