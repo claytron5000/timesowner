@@ -19,10 +19,11 @@ function App() {
 		isLocal: true
 	}
 	const [currentZones, setCurrentZones] = useState<Array<IClockBlock>>([local]);
+	const [show, toggle] = useState(false);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			// debugger	
+			
 			const nextZones = currentZones.map((clockBlock) => {
 				const now = DateTime.now();
 				const newZone = now.setZone(clockBlock.dateTime.zoneName);
@@ -37,26 +38,29 @@ function App() {
 	}, [currentZones]);
 
 	const addNewZone = (iana: string, title: string) => {
-		// debugger
+
 		const newtz = { 
 			dateTime: DateTime.now().setZone(iana), 
 			title
 		};
 		setCurrentZones(currentZones.concat([newtz]));
+		toggle(false);
 	};
 
 	const sortedZones = [...currentZones].sort((a, b) => a.dateTime.offset - b.dateTime.offset);
-	// debugger
 	return (
 		<div className="App">
 			<header className="App-header">
-				<h1>Times Owner</h1>
+				<h1 style={{fontSize: "2rem"}}>Times Owner</h1>
 			</header>
 			<main>
 				<section className="upper">
-				<AddZoneModal>
-							<ZoneAdder addToZones={addNewZone} />
-						</AddZoneModal>
+					<div>
+					<button className="button icon" onClick={() => toggle(!show)}>
+						<FontAwesomeIcon icon={faPlus} />
+					</button>
+					{show ? <ZoneAdder addToZones={addNewZone} /> : null}
+					</div>
 					<ul className="bar">
 						
 						{sortedZones.map((clockBlock, index) => (
@@ -76,10 +80,15 @@ export default App;
 
 function ClockBlock(props: IClockBlock) {
 	const { dateTime, title, isLocal } = props;
+	
+	const val = dateTime.toFormat("HH:mm:ss");
+	console.log("value:", val);
+	console.log("datetime", dateTime)
 	return (
 		<li className="ClockBlock box" style={isLocal ? {background: "#bfefff"}: {}}>
 			<h2>{title}</h2>
-			<Clock value={dateTime.toFormat("HH:mm:ss")} renderNumbers={true} />
+			
+			<Clock value={val} renderNumbers={true} />
 			<p>{dateTime.zoneName}</p>
 		</li>
 	);
@@ -90,19 +99,7 @@ function AddZoneModal(props: { children: React.ReactNode; }) {
 
 	return (
 		<>
-			<button className="button icon" onClick={() => toggle(!show)}>
-				<FontAwesomeIcon icon={faPlus} />
-			</button>
-			<Modal
-				isOpen={show}
-				contentLabel="Add a new Time Zone"
-				ariaHideApp={false}
-			>
-				<button className="delete" onClick={() => toggle(!show)}>
-					x
-				</button>
-				{props.children}
-			</Modal>
+			
 		</>
 	);
 }
