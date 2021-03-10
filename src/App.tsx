@@ -4,11 +4,10 @@ import "./ClockBlock.css";
 import "./ZoneAdder.css";
 import "bulma";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
 import Clock from "react-clock";
 import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
-import Modal from "react-modal";
 import ZoneAdder from "./ZoneAdder";
 import { IClockBlock } from "./interfaces";
 
@@ -20,6 +19,21 @@ function App() {
 	}
 	const [currentZones, setCurrentZones] = useState<Array<IClockBlock>>([local]);
 	const [show, toggle] = useState(false);
+
+	useEffect(() => {
+		const zoneList = localStorage.getItem("zoneList");
+		if(zoneList) {
+			setCurrentZones(JSON.parse(zoneList, (key, value)=>{
+				if(key === "dateTime") {
+					// @todo preserve the iana in setLocal and use that here
+					const datetime = DateTime.fromISO(value, {setZone: true});
+					return datetime
+				}
+				return value;
+			}))
+		}
+		
+	}, [])
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -43,8 +57,10 @@ function App() {
 			dateTime: DateTime.now().setZone(iana), 
 			title
 		};
-		setCurrentZones(currentZones.concat([newtz]));
+		const zones = currentZones.concat([newtz])
+		setCurrentZones(zones);
 		toggle(false);
+		localStorage.setItem("zoneList", JSON.stringify(zones));
 	};
 
 	const sortedZones = [...currentZones].sort((a, b) => a.dateTime.offset - b.dateTime.offset);
@@ -67,6 +83,9 @@ function App() {
 							<ClockBlock
 								key={`${clockBlock.dateTime.zoneName}-${index}`}
 								{...clockBlock}
+								// close={(clockBlock) => {
+								// 	const nextZones = currentZones.filter((zone) => zone.dateTime !== clockBlock )
+								// }}
 							/>
 						))}
 					</ul>
@@ -82,11 +101,13 @@ function ClockBlock(props: IClockBlock) {
 	const { dateTime, title, isLocal } = props;
 	
 	const val = dateTime.toFormat("HH:mm:ss");
-	console.log("value:", val);
-	console.log("datetime", dateTime)
+	
 	return (
 		<li className="ClockBlock box" style={isLocal ? {background: "#bfefff"}: {}}>
 			<h2>{title}</h2>
+			<button className="button icon" onClick={() => {}}>
+				<FontAwesomeIcon icon={faTimesCircle} />
+			</button>
 			
 			<Clock value={val} renderNumbers={true} />
 			<p>{dateTime.zoneName}</p>
