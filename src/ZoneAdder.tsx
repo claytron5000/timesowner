@@ -18,9 +18,9 @@ function ZoneAdder(props: Props) {
 	  
 	function setTime(event: FormEvent) {
 		event.preventDefault();
-		// event.target
-		debugger;
-		// addToZones(event.target, event.target.elements.title.value);
+		// @ts-ignore
+		const title = event.target.elements[0].value
+		addToZones(typeof selectedTimezone !== "string" ? selectedTimezone.value : '', title);
 	}
 
 	return (
