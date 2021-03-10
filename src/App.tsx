@@ -70,13 +70,8 @@ function App() {
 				<h1 style={{fontSize: "2rem"}}>Times Owner</h1>
 			</header>
 			<main>
-				<section className="upper">
-					<div>
-					<button className="button icon" onClick={() => toggle(!show)}>
-						<FontAwesomeIcon icon={faPlus} />
-					</button>
-					{show ? <ZoneAdder addToZones={addNewZone} /> : null}
-					</div>
+				<section className="upper">					
+					<ZoneAdder addToZones={addNewZone} />
 					<ul className="bar">
 						
 						{sortedZones.map((clockBlock, index) => (
