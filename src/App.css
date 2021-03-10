@@ -5,3 +5,6 @@
 .App-link {
 	color: #61dafb;
 }
+.upper {
+	display: flex;
+}

@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 
-export interface IClockBlock extends DateTime {
+export interface IClockBlock {
     title: string;
     isLocal?: boolean
+    dateTime: DateTime
 }

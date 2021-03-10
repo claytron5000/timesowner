@@ -11,20 +11,23 @@ import { DateTime } from "luxon";
 import Modal from "react-modal";
 import ZoneAdder from "./ZoneAdder";
 import { IClockBlock } from "./interfaces";
-import { ClockBlockClass } from "./ClockBlockClass";
 
 function App() {
-	
-	const [currentZones, setCurrentZones] = useState<Array<ClockBlockClass>>([new ClockBlockClass({title: "Local", isLocal: true})]);
+	const local: IClockBlock = {
+		title: "Local",
+		dateTime: DateTime.now(),
+		isLocal: true
+	}
+	const [currentZones, setCurrentZones] = useState<Array<IClockBlock>>([local]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
+			// debugger	
 			const nextZones = currentZones.map((clockBlock) => {
-				const now = new ClockBlockClass({title:clockBlock.title, isLocal: clockBlock.isLocal})
-				now.setZone(clockBlock.zoneName);
-				return now;
+				const now = DateTime.now();
+				const newZone = now.setZone(clockBlock.dateTime.zoneName);
+				return {...clockBlock, dateTime: newZone};
 			});
-			
 			setCurrentZones(nextZones);
 		}, 1000);
 
@@ -34,13 +37,15 @@ function App() {
 	}, [currentZones]);
 
 	const addNewZone = (iana: string, title: string) => {
-		
-		const newtz = new ClockBlockClass({title});
-		newtz.setZone(iana);
+		// debugger
+		const newtz = { 
+			dateTime: DateTime.now().setZone(iana), 
+			title
+		};
 		setCurrentZones(currentZones.concat([newtz]));
 	};
 
-	const sortedZones = [...currentZones].sort((a, b) => a.offset - b.offset);
+	const sortedZones = [...currentZones].sort((a, b) => a.dateTime.offset - b.dateTime.offset);
 	// debugger
 	return (
 		<div className="App">
@@ -48,15 +53,16 @@ function App() {
 				<h1>Times Owner</h1>
 			</header>
 			<main>
-				<section>
-					<ul className="bar">
-						<AddZoneModal>
+				<section className="upper">
+				<AddZoneModal>
 							<ZoneAdder addToZones={addNewZone} />
 						</AddZoneModal>
-						{sortedZones.map((clockBlock: ClockBlockClass, index) => (
+					<ul className="bar">
+						
+						{sortedZones.map((clockBlock, index) => (
 							<ClockBlock
-								key={`${clockBlock.zoneName}-${index}`}
-								cb={clockBlock}
+								key={`${clockBlock.dateTime.zoneName}-${index}`}
+								{...clockBlock}
 							/>
 						))}
 					</ul>
@@ -68,13 +74,13 @@ function App() {
 
 export default App;
 
-function ClockBlock(props: {cb: ClockBlockClass}) {
-	const { title, isLocal } = props.cb;
+function ClockBlock(props: IClockBlock) {
+	const { dateTime, title, isLocal } = props;
 	return (
 		<li className="ClockBlock box" style={isLocal ? {background: "#bfefff"}: {}}>
 			<h2>{title}</h2>
-			<Clock value={props.cb.toFormat("HH:mm:ss")} renderNumbers={true} />
-			<p>{props.cb.zoneName}</p>
+			<Clock value={dateTime.toFormat("HH:mm:ss")} renderNumbers={true} />
+			<p>{dateTime.zoneName}</p>
 		</li>
 	);
 }
