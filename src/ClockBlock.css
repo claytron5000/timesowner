@@ -13,3 +13,8 @@
 .box:not(:last-child).ClockBlock {
 	margin-bottom: initial;
 }
+.ClockBlock header {
+	display: flex;
+	flex-direction: column-reverse;
+	align-items: flex-end;
+}

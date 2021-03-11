@@ -18,6 +18,7 @@ function ZoneAdder(props: Props) {
 	  
 	function setTime(event: FormEvent) {
 		event.preventDefault();
+		toggle(false);
 		// @ts-ignore
 		const title = event.target.elements[0].value
 		addToZones(typeof selectedTimezone !== "string" ? selectedTimezone.value : '', title);

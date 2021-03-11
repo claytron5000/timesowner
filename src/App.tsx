@@ -18,7 +18,6 @@ function App() {
 		isLocal: true
 	}
 	const [currentZones, setCurrentZones] = useState<Array<IClockBlock>>([local]);
-	const [show, toggle] = useState(false);
 
 	useEffect(() => {
 		const zoneList = localStorage.getItem("zoneList");
@@ -58,10 +57,17 @@ function App() {
 			title
 		};
 		const zones = currentZones.concat([newtz])
+		debugger
 		setCurrentZones(zones);
-		toggle(false);
+		
 		localStorage.setItem("zoneList", JSON.stringify(zones));
 	};
+
+	const removeZone = (clockBlock:DateTime) => {
+		const nextZones = currentZones.filter((zone) => zone.dateTime !== clockBlock)
+		setCurrentZones(nextZones);
+		localStorage.setItem("zoneList", JSON.stringify(nextZones))
+	}
 
 	const sortedZones = [...currentZones].sort((a, b) => a.dateTime.offset - b.dateTime.offset);
 	return (
@@ -78,10 +84,7 @@ function App() {
 							<ClockBlock
 								key={`${clockBlock.dateTime.zoneName}-${index}`}
 								{...clockBlock}
-								close={(clockBlock) => {
-									const nextZones = currentZones.filter((zone) => zone.dateTime !== clockBlock)
-									setCurrentZones(nextZones)
-								}}
+								close={removeZone}
 							/>
 						))}
 					</ul>
@@ -102,23 +105,14 @@ function ClockBlock(props: TClockBlock) {
 	
 	return (
 		<li className="ClockBlock box" style={isLocal ? {background: "#bfefff"}: {}}>
-			<h2>{title}</h2>
-			<button className="button icon" onClick={() => {close(dateTime)}}>
+			<header><h2>{title}</h2>
+			{!isLocal && <button className="button icon" onClick={() => {close(dateTime)}}>
 				<FontAwesomeIcon icon={faTimesCircle} />
-			</button>
+			</button>}
+			</header>
 			
 			<Clock value={val} renderNumbers={true} />
 			<p>{dateTime.zoneName}</p>
 		</li>
-	);
-}
-
-function AddZoneModal(props: { children: React.ReactNode; }) {
-	const [show, toggle] = useState(false);
-
-	return (
-		<>
-			
-		</>
 	);
 }
