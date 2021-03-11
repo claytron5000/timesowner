@@ -1,0 +1,13 @@
+.App {
+	text-align: center;
+}
+.App-link {
+	color: #61dafb;
+}
+.upper {
+	align-items: center;
+	display: flex;
+}
+.upper > * {
+	padding: 1rem;
+}
