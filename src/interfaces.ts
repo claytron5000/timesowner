@@ -4,5 +4,9 @@ export interface IClockBlock {
     title: string;
     isLocal?: boolean;
     dateTime: DateTime;
-    close?: (arg: DateTime) => void;
+    
+}
+
+export interface TClockBlock extends IClockBlock {
+    close: (arg: DateTime) => void;
 }

@@ -9,7 +9,7 @@ import Clock from "react-clock";
 import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
 import ZoneAdder from "./ZoneAdder";
-import { IClockBlock } from "./interfaces";
+import { IClockBlock, TClockBlock } from "./interfaces";
 
 function App() {
 	const local: IClockBlock = {
@@ -78,13 +78,16 @@ function App() {
 							<ClockBlock
 								key={`${clockBlock.dateTime.zoneName}-${index}`}
 								{...clockBlock}
-								// close={(clockBlock) => {
-								// 	const nextZones = currentZones.filter((zone) => zone.dateTime !== clockBlock )
-								// }}
+								close={(clockBlock) => {
+									const nextZones = currentZones.filter((zone) => zone.dateTime !== clockBlock)
+									setCurrentZones(nextZones)
+								}}
 							/>
 						))}
 					</ul>
 				</section>
+				<hr/>
+				<section></section>
 			</main>
 		</div>
 	);
@@ -92,15 +95,15 @@ function App() {
 
 export default App;
 
-function ClockBlock(props: IClockBlock) {
-	const { dateTime, title, isLocal } = props;
+function ClockBlock(props: TClockBlock) {
+	const { dateTime, title, isLocal, close } = props;
 	
 	const val = dateTime.toFormat("HH:mm:ss");
 	
 	return (
 		<li className="ClockBlock box" style={isLocal ? {background: "#bfefff"}: {}}>
 			<h2>{title}</h2>
-			<button className="button icon" onClick={() => {}}>
+			<button className="button icon" onClick={() => {close(dateTime)}}>
 				<FontAwesomeIcon icon={faTimesCircle} />
 			</button>
 			
