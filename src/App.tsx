@@ -4,7 +4,7 @@ import "./ClockBlock.css";
 import "./ZoneAdder.css";
 import "bulma";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
+import { faTimesCircle } from "@fortawesome/free-solid-svg-icons";
 import Clock from "react-clock";
 import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
@@ -57,7 +57,6 @@ function App() {
 			title
 		};
 		const zones = currentZones.concat([newtz])
-		debugger
 		setCurrentZones(zones);
 		
 		localStorage.setItem("zoneList", JSON.stringify(zones));
@@ -104,9 +103,9 @@ function ClockBlock(props: TClockBlock) {
 	const val = dateTime.toFormat("HH:mm:ss");
 	
 	return (
-		<li className="ClockBlock box" style={isLocal ? {background: "#bfefff"}: {}}>
+		<li className="ClockBlock box shadow" style={isLocal ? {background: "#f0f0ff"}: {}}>
 			<header><h2>{title}</h2>
-			{!isLocal && <button className="button icon" onClick={() => {close(dateTime)}}>
+			{!isLocal && <button className="closer icon" onClick={() => {close(dateTime)}}>
 				<FontAwesomeIcon icon={faTimesCircle} />
 			</button>}
 			</header>
