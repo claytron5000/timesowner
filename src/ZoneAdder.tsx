@@ -34,7 +34,9 @@ function ZoneAdder(props: Props) {
 		<button className="adder shadow icon" onClick={() => toggle(!show)}>
 			<FontAwesomeIcon icon={faPlus} />
 		</button>
-		<Modal isOpen={show} style={{
+		<Modal 
+			isOpen={show} 
+			style={{
               overlay: {
                 backgroundColor: 'rgba(10,10,10,0.5)'
               },
@@ -43,7 +45,12 @@ function ZoneAdder(props: Props) {
 				left: "30%",
 				padding: "5rem"
               }
-            }}>
+            }}
+			onRequestClose={() => {toggle(false)}}
+           	shouldCloseOnOverlayClick={true}
+			contentLabel="Add a Zone"
+			appElement={document.getElementById("root") || {}}
+		>
 			<button className="closer icon" onClick={() => {toggle(false)}}>
 				<FontAwesomeIcon icon={faTimesCircle} />
 			</button>
