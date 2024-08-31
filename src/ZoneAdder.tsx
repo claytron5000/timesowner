@@ -1,9 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { ChangeEventHandler, FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import { faPlus, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
 import Modal from "react-modal";
 import Select from "react-select";
-// import { type ITimezone } from "react-timezone-select";
+import { timeZones } from "./timeZones";
+import { timeZoneNames } from "./timeZoneNames";
 
 interface Props {
 	addToZones: (iana: string, title: string) => void;
@@ -72,6 +73,24 @@ function ZoneAdder(props: Props) {
 							}
 						}}
 					/>
+					{selectedTimezone.indexOf("UTC") > -1 && (
+						<>
+							<p>
+								The zone you're adding is a static offset of{" "}
+								{selectedTimezone.slice(3)} hours from UTC. If you're keeping
+								track of what time it is in a certain part of the world, this
+								may not be the option you want to choose.
+							</p>
+							<p>
+								Instead, find an option that reflects a geographic and political
+								space near to where you want to track.
+							</p>
+							<ZoneHelperList
+								offset={selectedTimezone.slice(3)}
+								setCallback={setSelectedTimezone}
+							/>
+						</>
+					)}
 
 					<button className="button" style={{ marginTop: "1rem" }}>
 						Add it
@@ -89,6 +108,18 @@ type Option = {
 	value: string;
 };
 
+type ZoneName = {
+	"Country code(s)": string;
+	"TZ identifier": string;
+	"Embedded comments": string;
+	Type: string;
+	"UTC offset±hh:mm SDT": string;
+	"UTC offset±hh:mm DST": string;
+	"Time zone abbreviation": string;
+	"Source file": string;
+	Notes: string;
+};
+
 function TimezoneSelect({
 	id,
 	value,
@@ -101,17 +132,67 @@ function TimezoneSelect({
 	return (
 		<Select
 			onChange={onChange}
-			options={getAvailableTimeZones().map((tz) => ({ value: tz, label: tz }))}
+			options={getAvailableTimeZones()}
+			value={{ value, label: value }}
 		/>
-		// <Dropdown zones={getAvailableTimeZones()} />
-		// <select id={id} value={value} onChange={onChange}>
-		// 	{getAvailableTimeZones().map((tz: string) => (
-		// 		<option value={tz}>{tz}</option>
-		// 	))}
-		// </select>
+	);
+}
+type ScrapedTimeZone = {
+	Abbr: string;
+	Name: string;
+	UTCOffset: string;
+};
+function getAvailableTimeZones(): Option[] {
+	//@ts-ignore
+	const supportedValues = Intl.supportedValuesOf("timeZone") as string[];
+	return supportedValues
+		.map((tz) => ({
+			value: tz,
+			label: tz,
+		}))
+		.concat(
+			timeZones.map((tz: ScrapedTimeZone) => {
+				return {
+					label: tz.Abbr + "/" + tz.Name,
+					value: tz.UTCOffset,
+				};
+			})
+		);
+}
+
+function ZoneHelperList({
+	offset,
+	setCallback,
+}: {
+	offset: string;
+	setCallback: (tz: string) => void;
+}) {
+	const zoneNames = timeZoneNames.filter((tz) => {
+		return (
+			tz["UTC offset±hh:mm DST"] === convertToColonSeparated(offset) ||
+			tz["UTC offset±hh:mm SDT"] === convertToColonSeparated(offset)
+		);
+	});
+	return (
+		<ul className="zoneMap is-multiple">
+			{zoneNames.map((zone, index) => (
+				<li key={zone["Time zone abbreviation"] + String(index)}>
+					<button onClick={() => setCallback(zone["TZ identifier"])}>
+						{zone["TZ identifier"]}
+					</button>
+				</li>
+			))}
+		</ul>
 	);
 }
 
-function getAvailableTimeZones(): string[] {
-	return Intl.supportedValuesOf("timeZone");
+function convertToColonSeparated(offset: string) {
+	if (offset[0] !== "-" && offset[0] !== "+") {
+		throw new Error("Bad offset: " + offset);
+	}
+	if (offset.slice(3, -2) === ":") {
+		return offset;
+	} else {
+		return offset + ":00";
+	}
 }

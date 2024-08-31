@@ -9,7 +9,7 @@ export function ClockBlock(props: TClockBlock) {
 	const { timeZone, title, isLocal, close } = props;
 	const dateTime = DateTime.now().setZone(timeZone);
 	const val = dateTime.toFormat("HH:mm:ss");
-	const day = dateTime.hour > 6 && dateTime.hour < 20;
+	const day = dateTime.hour > 5 && dateTime.hour < 20;
 	return (
 		<li
 			className={`ClockBlock box shadow ${day ? "day" : "night"}`}
