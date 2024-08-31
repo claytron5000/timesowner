@@ -1,12 +1,9 @@
-import { DateTime } from "luxon";
-
 export interface IClockBlock {
-    title: string;
-    isLocal?: boolean;
-    dateTime: DateTime;
-    
+	title: string;
+	isLocal?: boolean;
+	timeZone: string;
 }
 
 export interface TClockBlock extends IClockBlock {
-    close: (arg: DateTime) => void;
+	close: (arg: string) => void;
 }

@@ -11,6 +11,12 @@
 	flex-grow: 1;
 	flex-wrap: wrap;
 }
+.night .react-clock__hand__body:not(.react-clock__second-hand__body) {
+	background-color: var(--bulma-text);
+}
+.night .react-clock__mark__body {
+	background-color: var(--bulma-text);
+}
 .box:not(:last-child).ClockBlock {
 	margin-bottom: initial;
 }
@@ -19,7 +25,7 @@
 	background: transparent;
 	font-size: 1.25rem;
 	border: none;
-	color: #111;
+
 	cursor: pointer;
 	position: absolute;
 	top: 0.125rem;

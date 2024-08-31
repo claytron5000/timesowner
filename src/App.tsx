@@ -3,25 +3,23 @@ import "./App.css";
 import "./ClockBlock.css";
 import "./ZoneAdder.css";
 import "bulma/css/bulma.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimesCircle } from "@fortawesome/free-solid-svg-icons";
-import Clock from "react-clock";
 import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
 import ZoneAdder from "./ZoneAdder";
-import { IClockBlock, TClockBlock } from "./interfaces";
+import { IClockBlock } from "./interfaces";
 import { type ITimezone } from "react-timezone-select";
+import { ClockBlock } from "./ClockBlock";
 
 function App() {
 	const local: IClockBlock = {
 		title: "Local",
-		dateTime: DateTime.now(),
+		timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		isLocal: true,
 	};
 	const [currentZones, setCurrentZones] = useState<Array<IClockBlock>>([local]);
 
 	useEffect(() => {
-		const zoneList = localStorage.getItem("zoneList");
+		const zoneList = localStorage.getItem("zoneList3");
 		if (zoneList) {
 			setCurrentZones(
 				JSON.parse(zoneList, (key, value) => {
@@ -38,9 +36,9 @@ function App() {
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			const nextZones = currentZones.map((clockBlock: any) => {
+			const nextZones = currentZones.map((clockBlock: IClockBlock) => {
 				const now = DateTime.now();
-				const newZone = now.setZone(clockBlock.dateTime.zoneName);
+				const newZone = now.setZone(clockBlock.timeZone);
 				return { ...clockBlock, dateTime: newZone };
 			});
 			setCurrentZones(nextZones);
@@ -51,28 +49,30 @@ function App() {
 		};
 	}, [currentZones]);
 
-	const addNewZone = (iana: ITimezone, title: string) => {
-		const newtz = {
-			dateTime: DateTime.now().setZone(iana.toString()),
+	const addNewZone = (iana: string, title: string) => {
+		const newtz: IClockBlock = {
+			timeZone: iana, //DateTime.now().setZone(iana.toString()),
 			title,
 		};
 		const zones = currentZones.concat([newtz]);
 		setCurrentZones(zones);
 
-		localStorage.setItem("zoneList", JSON.stringify(zones));
+		localStorage.setItem("zoneList3", JSON.stringify(zones));
 	};
 
-	const removeZone = (clockBlock: DateTime) => {
+	const removeZone = (clockBlock: string) => {
 		const nextZones = currentZones.filter(
-			(zone) => zone.dateTime !== clockBlock
+			(zone) => zone.timeZone !== clockBlock
 		);
 		setCurrentZones(nextZones);
-		localStorage.setItem("zoneList", JSON.stringify(nextZones));
+		localStorage.setItem("zoneList3", JSON.stringify(nextZones));
 	};
 
-	const sortedZones = [...currentZones].sort(
-		(a, b) => a.dateTime.offset - b.dateTime.offset
-	);
+	const sortedZones = [...currentZones].sort((a, b) => {
+		const dateA = DateTime.now().setZone(a.timeZone);
+		const dateB = DateTime.now().setZone(b.timeZone);
+		return dateA.offset - dateB.offset;
+	});
 	return (
 		<div className="App">
 			<header className="App-header">
@@ -84,7 +84,7 @@ function App() {
 					<ul className="bar">
 						{sortedZones.map((clockBlock, index) => (
 							<ClockBlock
-								key={`${clockBlock.dateTime.zoneName}-${index}`}
+								key={`${clockBlock.timeZone}-${index}`}
 								{...clockBlock}
 								close={removeZone}
 							/>
@@ -99,33 +99,3 @@ function App() {
 }
 
 export default App;
-
-function ClockBlock(props: TClockBlock) {
-	const { dateTime, title, isLocal, close } = props;
-
-	const val = dateTime.toFormat("HH:mm:ss");
-
-	return (
-		<li
-			className="ClockBlock box shadow"
-			style={isLocal ? { background: "#f0f0ff" } : {}}
-		>
-			<header>
-				<h2>{title}</h2>
-				{!isLocal && (
-					<button
-						className="closer icon"
-						onClick={() => {
-							close(dateTime);
-						}}
-					>
-						<FontAwesomeIcon icon={faTimesCircle} />
-					</button>
-				)}
-			</header>
-
-			<Clock value={val} renderNumbers={true} />
-			<p>{dateTime.zoneName}</p>
-		</li>
-	);
-}
