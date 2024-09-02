@@ -40,3 +40,8 @@
 label {
 	display: block;
 }
+
+.zoneMap {
+	overflow-y: auto;
+	max-height: 12rem;
+}
