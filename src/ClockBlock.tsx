@@ -2,12 +2,11 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimesCircle } from "@fortawesome/free-solid-svg-icons";
 import Clock from "react-clock";
-import { DateTime } from "luxon";
 import { TClockBlock } from "./interfaces";
 
 export function ClockBlock(props: TClockBlock) {
-	const { timeZone, title, isLocal, close } = props;
-	const dateTime = DateTime.now().setZone(timeZone);
+	const { timeZone, title, isLocal, close, dateTime } = props;
+
 	const val = dateTime.toFormat("HH:mm:ss");
 	const day = dateTime.hour > 5 && dateTime.hour < 20;
 	return (

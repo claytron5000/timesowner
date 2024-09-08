@@ -6,41 +6,43 @@ import "bulma/css/bulma.css";
 import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
 import ZoneAdder from "./ZoneAdder";
-import { IClockBlock } from "./interfaces";
-import { type ITimezone } from "react-timezone-select";
+import { IClockBlock, InstatiatedClockBlock } from "./interfaces";
 import { ClockBlock } from "./ClockBlock";
 
 function App() {
-	const local: IClockBlock = {
+	const local: InstatiatedClockBlock = {
 		title: "Local",
 		timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		isLocal: true,
+		dateTime: DateTime.now(),
 	};
-	const [currentZones, setCurrentZones] = useState<Array<IClockBlock>>([local]);
+	const [currentZones, setCurrentZones] = useState<
+		Array<InstatiatedClockBlock>
+	>([local]);
 
 	useEffect(() => {
 		const zoneList = localStorage.getItem("zoneList3");
 		if (zoneList) {
+			const zones: IClockBlock[] = JSON.parse(zoneList);
 			setCurrentZones(
-				JSON.parse(zoneList, (key, value) => {
-					if (key === "dateTime") {
-						// @todo preserve the iana in setLocal and use that here
-						const datetime = DateTime.fromISO(value, { setZone: true });
-						return datetime;
-					}
-					return value;
-				})
+				zones.map((z) => ({
+					...z,
+					dateTime: DateTime.now().setZone(z.timeZone),
+				}))
 			);
 		}
 	}, []);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			const nextZones = currentZones.map((clockBlock: IClockBlock) => {
-				const now = DateTime.now();
-				const newZone = now.setZone(clockBlock.timeZone);
-				return { ...clockBlock, dateTime: newZone };
-			});
+			const nextZones = currentZones.map(
+				(clockBlock: InstatiatedClockBlock) => {
+					return {
+						...clockBlock,
+						dateTime: clockBlock.dateTime.plus({ seconds: 1 }),
+					};
+				}
+			);
 			setCurrentZones(nextZones);
 		}, 1000);
 
@@ -50,9 +52,10 @@ function App() {
 	}, [currentZones]);
 
 	const addNewZone = (iana: string, title: string) => {
-		const newtz: IClockBlock = {
+		const newtz: InstatiatedClockBlock = {
 			timeZone: iana, //DateTime.now().setZone(iana.toString()),
 			title,
+			dateTime: DateTime.now().setZone(iana),
 		};
 		const zones = currentZones.concat([newtz]);
 		setCurrentZones(zones);
