@@ -6,17 +6,20 @@ import "bulma/css/bulma.css";
 import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
 import ZoneAdder from "./ZoneAdder";
-import { IClockBlock } from "./interfaces";
+import { IClockBlock, InstantiatedClockBlock } from "./interfaces";
 import { type ITimezone } from "react-timezone-select";
 import { ClockBlock } from "./ClockBlock";
 
 function App() {
-	const local: IClockBlock = {
+	const local: InstantiatedClockBlock = {
 		title: "Local",
 		timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		isLocal: true,
+		dateTime: DateTime.now(),
 	};
-	const [currentZones, setCurrentZones] = useState<Array<IClockBlock>>([local]);
+	const [currentZones, setCurrentZones] = useState<
+		Array<InstantiatedClockBlock>
+	>([local]);
 
 	useEffect(() => {
 		const zoneList = localStorage.getItem("zoneList3");
@@ -24,23 +27,26 @@ function App() {
 			setCurrentZones(
 				JSON.parse(zoneList, (key, value) => {
 					if (key === "dateTime") {
-						// @todo preserve the iana in setLocal and use that here
-						const datetime = DateTime.fromISO(value, { setZone: true });
-						return datetime;
+						return DateTime.now();
 					}
 					return value;
-				})
+				}).map((z: InstantiatedClockBlock) => ({
+					...z,
+					dateTime: z.dateTime.setZone(z.timeZone),
+				}))
 			);
 		}
 	}, []);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			const nextZones = currentZones.map((clockBlock: IClockBlock) => {
-				const now = DateTime.now();
-				const newZone = now.setZone(clockBlock.timeZone);
-				return { ...clockBlock, dateTime: newZone };
-			});
+			const nextZones = currentZones.map(
+				(clockBlock: InstantiatedClockBlock) => {
+					const now = DateTime.now();
+					const newZone = now.setZone(clockBlock.timeZone);
+					return { ...clockBlock, dateTime: newZone };
+				}
+			);
 			setCurrentZones(nextZones);
 		}, 1000);
 
@@ -50,28 +56,27 @@ function App() {
 	}, [currentZones]);
 
 	const addNewZone = (iana: string, title: string) => {
-		const newtz: IClockBlock = {
-			timeZone: iana, //DateTime.now().setZone(iana.toString()),
+		if (currentZones.find((z) => z.title === title)) return false;
+		const newtz: InstantiatedClockBlock = {
+			timeZone: iana,
 			title,
+			dateTime: DateTime.now().setZone(iana.toString()),
 		};
 		const zones = currentZones.concat([newtz]);
 		setCurrentZones(zones);
 
 		localStorage.setItem("zoneList3", JSON.stringify(zones));
+		return true;
 	};
 
 	const removeZone = (clockBlock: string) => {
-		const nextZones = currentZones.filter(
-			(zone) => zone.timeZone !== clockBlock
-		);
+		const nextZones = currentZones.filter((zone) => zone.title !== clockBlock);
 		setCurrentZones(nextZones);
 		localStorage.setItem("zoneList3", JSON.stringify(nextZones));
 	};
 
 	const sortedZones = [...currentZones].sort((a, b) => {
-		const dateA = DateTime.now().setZone(a.timeZone);
-		const dateB = DateTime.now().setZone(b.timeZone);
-		return dateA.offset - dateB.offset;
+		return a.dateTime.offset - b.dateTime.offset;
 	});
 	return (
 		<div className="App">
