@@ -5,6 +5,7 @@ import Modal from "react-modal";
 import Select from "react-select";
 import { timeZones } from "./timeZones";
 import { timeZoneNames } from "./timeZoneNames";
+import "@formatjs/intl-enumerator/polyfill";
 
 interface Props {
 	addToZones: (iana: string, title: string) => boolean;
