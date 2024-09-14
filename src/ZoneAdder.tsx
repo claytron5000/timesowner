@@ -7,13 +7,14 @@ import { timeZones } from "./timeZones";
 import { timeZoneNames } from "./timeZoneNames";
 
 interface Props {
-	addToZones: (iana: string, title: string) => void;
+	addToZones: (iana: string, title: string) => boolean;
 }
 
 function ZoneAdder(props: Props) {
 	const { addToZones } = props;
 	const [show, toggle] = useState(false);
 	const [selectedTimezone, setSelectedTimezone] = useState<string>("");
+	const [message, setMessage] = useState<string>("");
 
 	function setTime(event: FormEvent) {
 		event.preventDefault();
@@ -21,10 +22,15 @@ function ZoneAdder(props: Props) {
 			toggle(false);
 			return;
 		}
-		toggle(false);
+
 		// @ts-ignore
 		const title = event.target.elements[0].value;
-		addToZones(selectedTimezone || "", title);
+		const set = addToZones(selectedTimezone || "", title);
+		if (!set) {
+			setMessage("Please chose a title different from your current zones");
+			return;
+		}
+		toggle(false);
 		setSelectedTimezone("");
 	}
 
@@ -73,6 +79,7 @@ function ZoneAdder(props: Props) {
 							}
 						}}
 					/>
+					{message}
 					{selectedTimezone.indexOf("UTC") > -1 && (
 						<>
 							<p>
