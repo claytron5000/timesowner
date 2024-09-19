@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import "./App.css";
 import "./ClockBlock.css";
 import "./ZoneAdder.css";
@@ -10,7 +10,8 @@ import { IClockBlock, InstantiatedClockBlock } from "./interfaces";
 import { type ITimezone } from "react-timezone-select";
 import { ClockBlock } from "./ClockBlock";
 import { UserMenu } from "./UserMenu";
-
+import { User } from "firebase/auth";
+const UserContext = createContext<User | undefined>(undefined);
 function App() {
 	const local: InstantiatedClockBlock = {
 		title: "Local",
