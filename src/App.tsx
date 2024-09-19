@@ -9,6 +9,7 @@ import ZoneAdder from "./ZoneAdder";
 import { IClockBlock, InstantiatedClockBlock } from "./interfaces";
 import { type ITimezone } from "react-timezone-select";
 import { ClockBlock } from "./ClockBlock";
+import { UserMenu } from "./UserMenu";
 
 function App() {
 	const local: InstantiatedClockBlock = {
@@ -82,6 +83,7 @@ function App() {
 		<div className="App">
 			<header className="App-header">
 				<h1 style={{ fontSize: "2rem" }}>Times Owner</h1>
+				<UserMenu />
 			</header>
 			<main>
 				<section className="upper">
