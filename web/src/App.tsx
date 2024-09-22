@@ -6,8 +6,7 @@ import "bulma/css/bulma.css";
 import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
 import ZoneAdder from "./ZoneAdder";
-import { IClockBlock, InstantiatedClockBlock } from "./interfaces";
-import { type ITimezone } from "react-timezone-select";
+import { InstantiatedClockBlock } from "./interfaces";
 import { ClockBlock } from "./ClockBlock";
 import { UserMenu } from "./UserMenu";
 import { User } from "firebase/auth";
@@ -32,10 +31,12 @@ function App() {
 						return DateTime.now();
 					}
 					return value;
-				}).map((z: InstantiatedClockBlock) => ({
-					...z,
-					dateTime: z.dateTime.setZone(z.timeZone),
-				}))
+				})
+					.map((z: InstantiatedClockBlock) => ({
+						...z,
+						dateTime: z.dateTime.setZone(z.timeZone),
+					}))
+					.concat([local])
 			);
 		}
 	}, []);
@@ -67,14 +68,14 @@ function App() {
 		const zones = currentZones.concat([newtz]);
 		setCurrentZones(zones);
 
-		localStorage.setItem("zoneList3", JSON.stringify(zones));
+		setZonesToLocal(zones);
 		return true;
 	};
 
 	const removeZone = (clockBlock: string) => {
 		const nextZones = currentZones.filter((zone) => zone.title !== clockBlock);
 		setCurrentZones(nextZones);
-		localStorage.setItem("zoneList3", JSON.stringify(nextZones));
+		setZonesToLocal(nextZones);
 	};
 
 	const sortedZones = [...currentZones].sort((a, b) => {
@@ -107,3 +108,8 @@ function App() {
 }
 
 export default App;
+
+function setZonesToLocal(zones: InstantiatedClockBlock[]) {
+	zones = zones.filter((z) => !z.isLocal);
+	localStorage.setItem("zoneList3", JSON.stringify(zones));
+}
