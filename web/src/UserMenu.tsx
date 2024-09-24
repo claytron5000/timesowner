@@ -1,15 +1,17 @@
 import { faTimesCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Modal from "react-modal";
 // import { createUser, signInUser } from "./fireBaseAuthService";
 import "firebaseui/dist/firebaseui.css";
 import auth from "./auth";
 import firebase from "firebase/compat/app";
 import * as firebaseui from "firebaseui";
+import { UserContext } from "./App";
 
 export const UserMenu = () => {
 	const [open, setOpen] = useState(false);
+	const user = useContext(UserContext);
 	// const [isCreateUser, setIsCreateUser] = useState(false);
 	// const [messages, setMessages] = useState("");
 	// const formHandler = isCreateUser ? createUser : signInUser;

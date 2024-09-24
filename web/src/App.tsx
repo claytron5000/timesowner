@@ -10,7 +10,7 @@ import { InstantiatedClockBlock } from "./interfaces";
 import { ClockBlock } from "./ClockBlock";
 import { UserMenu } from "./UserMenu";
 import { User } from "firebase/auth";
-const UserContext = createContext<User | undefined>(undefined);
+export const UserContext = createContext<User | undefined>(undefined);
 function App() {
 	const local: InstantiatedClockBlock = {
 		title: "Local",
@@ -82,28 +82,30 @@ function App() {
 		return a.dateTime.offset - b.dateTime.offset;
 	});
 	return (
-		<div className="App">
-			<header className="App-header">
-				<h1 style={{ fontSize: "2rem" }}>Times Owner</h1>
-				<UserMenu />
-			</header>
-			<main>
-				<section className="upper">
-					<ZoneAdder addToZones={addNewZone} />
-					<ul className="bar">
-						{sortedZones.map((clockBlock, index) => (
-							<ClockBlock
-								key={`${clockBlock.timeZone}-${index}`}
-								{...clockBlock}
-								close={removeZone}
-							/>
-						))}
-					</ul>
-				</section>
-				<hr />
-				<section></section>
-			</main>
-		</div>
+		<UserContext.Provider value={undefined}>
+			<div className="App">
+				<header className="App-header">
+					<h1 style={{ fontSize: "2rem" }}>Times Owner</h1>
+					<UserMenu />
+				</header>
+				<main>
+					<section className="upper">
+						<ZoneAdder addToZones={addNewZone} />
+						<ul className="bar">
+							{sortedZones.map((clockBlock, index) => (
+								<ClockBlock
+									key={`${clockBlock.timeZone}-${index}`}
+									{...clockBlock}
+									close={removeZone}
+								/>
+							))}
+						</ul>
+					</section>
+					<hr />
+					<section></section>
+				</main>
+			</div>
+		</UserContext.Provider>
 	);
 }
 
