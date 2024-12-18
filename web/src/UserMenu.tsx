@@ -13,6 +13,7 @@ export const UserMenu = () => {
 			<Modal isOpen={open}>
 				<div>
 					<h1>login</h1>
+					<p>coming soon...(ish)</p>
 				</div>
 				<button
 					className="closer icon"
